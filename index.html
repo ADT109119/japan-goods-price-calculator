@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日本商品成本計算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .calculator-container {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .result-item {
+            transition: all 0.3s ease;
+        }
+        
+        .result-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        
+        .toggle-switch {
+            width: 50px;
+            height: 26px;
+        }
+        
+        .toggle-switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e2e8f0;
+            transition: background-color 0.2s ease; /* Added transition for background */
+            border-radius: 34px;
+        }
+        
+        .toggle-switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: transform 0.2s ease; /* Added transition for transform */
+            border-radius: 50%;
+        }
+        
+        /* Corrected selectors: Target slider inside the div sibling */
+        input:checked + .toggle-switch .toggle-switch-slider {
+            background-color: #3b82f6; 
+        }
+        
+        input:checked + .toggle-switch .toggle-switch-slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="calculator-container bg-white rounded-xl p-6 w-full max-w-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+            <i class="fas fa-calculator mr-2 text-blue-500"></i>日本商品成本計算器
+        </h1>
+        
+        <div class="space-y-4">
+            <div>
+                <label for="jpyPrice" class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-tag mr-1 text-blue-500"></i>日本商品價格 (含稅, JPY)
+                </label>
+                <div class="relative">
+                    <input type="number" id="jpyPrice" placeholder="例: 5000" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <span class="absolute right-3 top-2.5 text-gray-500">¥</span>
+                </div>
+            </div>
+            
+            <div>
+                <label for="exchangeRate" class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-exchange-alt mr-1 text-blue-500"></i>匯率 (1JPY = ? TWD)
+                </label>
+                <input type="number" id="exchangeRate" step="0.0001" placeholder="例: 0.22" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label for="weight" class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-weight-hanging mr-1 text-blue-500"></i>重量 (kg)
+                </label>
+                <input type="number" id="weight" step="0.1" placeholder="例: 1.5" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label for="profit" class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-money-bill-wave mr-1 text-blue-500"></i>預期利潤 (TWD)
+                </label>
+                <input type="number" id="profit" placeholder="例: 50" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div class="flex items-center justify-between pt-2">
+                <label for="shopeeFeeToggle" class="text-sm font-medium text-gray-700">
+                    <i class="fas fa-store mr-1 text-blue-500"></i>套用蝦皮手續費 (10%)
+                </label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="shopeeFeeToggle" class="sr-only" checked>
+                    <div class="toggle-switch">
+                        <span class="toggle-switch-slider"></span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+                <label for="agentFeeToggle" class="text-sm font-medium text-gray-700">
+                    <i class="fas fa-user-tie mr-1 text-blue-500"></i>套用代購費 (8%)
+                </label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="agentFeeToggle" class="sr-only" checked>
+                    <div class="toggle-switch">
+                        <span class="toggle-switch-slider"></span>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="pt-4">
+                <button id="calculateBtn" 
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-calculator mr-2"></i>計算成本與售價
+                </button>
+            </div>
+        </div>
+        
+        <div id="results" class="mt-8 space-y-3 hidden">
+            <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-2 flex items-center">
+                <i class="fas fa-receipt mr-2 text-blue-500"></i>成本分析
+            </h2>
+            
+            <div class="result-item bg-gray-50 p-4 rounded-lg">
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-600">日本商品價格</span>
+                    <span id="originalPrice" class="text-sm font-medium">¥0</span>
+                </div>
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-600">代購費 (8%)</span>
+                    <span id="agentFee" class="text-sm font-medium">¥0</span>
+                </div>
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-600">國際運費</span>
+                    <span id="shippingFee" class="text-sm font-medium">NT$0</span>
+                </div>
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-600">商品成本 (台幣)</span>
+                    <span id="productCost" class="text-sm font-medium">NT$0</span>
+                </div>
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-600">發票稅 (5%)</span>
+                    <span id="tax" class="text-sm font-medium">NT$0</span>
+                </div>
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-600">蝦皮手續費 (10%)</span>
+                    <span id="platformFee" class="text-sm font-medium">NT$0</span>
+                </div>
+                <div class="flex justify-between pt-2 mt-2 border-t border-gray-200">
+                    <span class="text-base font-semibold text-gray-800">總成本</span>
+                    <span id="totalCost" class="text-base font-semibold text-blue-600">NT$0</span>
+                </div>
+            </div>
+            
+            <div class="result-item bg-blue-50 p-4 rounded-lg mt-4">
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-800">預期利潤 (TWD)</span>
+                    <span id="profitAmount" class="text-sm font-medium text-blue-600">NT$0</span>
+                </div>
+                 <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-800">利潤率</span>
+                    <span id="profitPercentageDisplay" class="text-sm font-medium text-blue-600">0%</span>
+                </div>
+                <div class="flex justify-between pt-2 mt-2 border-t border-blue-100">
+                    <span class="text-lg font-bold text-gray-800">建議售價</span>
+                    <span id="suggestedPrice" class="text-lg font-bold text-blue-600">NT$0</span>
+                </div>
+            </div>
+            
+            <div id="calculationNotes" class="text-xs text-gray-500 mt-4 italic">
+                <i class="fas fa-info-circle mr-1 text-blue-400"></i> 計算說明: 國際運費 NT$240/kg | 發票稅 5% | 代購費 (8%) 與 蝦皮手續費 (10%) 可選
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const results = document.getElementById('results');
+            
+            calculateBtn.addEventListener('click', function() {
+                // 獲取輸入值
+                const jpyPrice = parseFloat(document.getElementById('jpyPrice').value) || 0;
+                const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0;
+                const weight = parseFloat(document.getElementById('weight').value) || 0;
+                const profitAmountTWD_input = parseFloat(document.getElementById('profit').value) || 0; // Changed variable name
+                const applyShopeeFee = document.getElementById('shopeeFeeToggle').checked;
+                const applyAgentFee = document.getElementById('agentFeeToggle').checked; // Read new toggle state
+                
+                // 計算各項費用
+                const agentFeeRate = applyAgentFee ? 0.08 : 0; // 代購費 8% or 0%
+                const agentFeeJPY = jpyPrice * agentFeeRate; 
+                const shippingFeeTWD = weight * 240; // 國際運費 240/kg
+                
+                // 轉換為台幣
+                const jpyPriceTWD = jpyPrice * exchangeRate;
+                const agentFeeTWD = agentFeeJPY * exchangeRate;
+
+                // 計算基礎成本 (商品+國際運費 + [可選]代購費)
+                const baseCostTWD = jpyPriceTWD + shippingFeeTWD + (applyAgentFee ? agentFeeTWD : 0);
+
+                // 定義稅率和平台費率
+                const taxRate = 0.05; // 5%
+                const platformFeeRate = applyShopeeFee ? 0.10 : 0; // 10% or 0%
+
+                // 計算建議售價 P = (基礎成本 + 預期利潤) / (1 - 稅率 - 平台費率)
+                const denominator = 1 - taxRate - platformFeeRate;
+                let suggestedPriceTWD = 0;
+                if (denominator > 0) { // Avoid division by zero or negative denominator
+                     suggestedPriceTWD = (baseCostTWD + profitAmountTWD_input) / denominator;
+                } else {
+                    // Handle edge case where rates sum to 100% or more - maybe set price to infinity or show error
+                    suggestedPriceTWD = Infinity; // Or some other indicator
+                }
+
+                // 基於建議售價計算實際稅金和平台費
+                const taxTWD = suggestedPriceTWD * taxRate;
+                const platformFeeTWD = suggestedPriceTWD * platformFeeRate;
+
+                // 計算總成本 (基礎成本 + 稅 + 平台費)
+                const totalCostTWD = baseCostTWD + taxTWD + platformFeeTWD;
+
+                // 實際利潤 = 建議售價 - 總成本 (應該等於 profitAmountTWD_input, 但用此驗證)
+                // const actualProfit = suggestedPriceTWD - totalCostTWD; 
+
+                // 計算實際利潤率 (相對於總成本)
+                let calculatedProfitPercentage = 0;
+                if (totalCostTWD > 0) { // Avoid division by zero
+                    calculatedProfitPercentage = (profitAmountTWD_input / totalCostTWD) * 100;
+                }
+
+                // 更新結果顯示
+                document.getElementById('originalPrice').textContent = `¥${jpyPrice.toLocaleString()}`;
+                document.getElementById('agentFee').textContent = applyAgentFee ? `¥${agentFeeJPY.toLocaleString(undefined, {maximumFractionDigits: 0})}` : '不適用'; // Update agent fee display
+                document.getElementById('shippingFee').textContent = `NT$${shippingFeeTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+                document.getElementById('productCost').textContent = `NT$${baseCostTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`; // Base cost now correctly reflects optional agent fee
+                document.getElementById('tax').textContent = `NT$${taxTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+                document.getElementById('platformFee').textContent = applyShopeeFee ? `NT$${platformFeeTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}` : '不適用';
+                document.getElementById('totalCost').textContent = `NT$${totalCostTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+                document.getElementById('profitAmount').textContent = `NT$${profitAmountTWD_input.toLocaleString(undefined, {maximumFractionDigits: 0})}`; // Use input profit amount
+                document.getElementById('profitPercentageDisplay').textContent = `${calculatedProfitPercentage.toFixed(1)}%`; // Display calculated percentage
+                document.getElementById('suggestedPrice').textContent = `NT$${suggestedPriceTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+                
+                // 顯示結果
+                results.classList.remove('hidden');
+                
+                // 滾動到結果區域
+                results.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
