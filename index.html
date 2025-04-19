@@ -208,6 +208,18 @@
                     </div>
                 </label>
             </div>
+
+            <div class="flex items-center justify-between pt-2">
+                <label for="invoiceTaxToggle" class="text-sm font-medium text-gray-700">
+                    <i class="fas fa-receipt mr-1 text-blue-500"></i>套用發票稅 (5%)
+                </label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="invoiceTaxToggle" class="sr-only" checked>
+                    <div class="toggle-switch">
+                        <span class="toggle-switch-slider"></span>
+                    </div>
+                </label>
+            </div>
             
             <div class="pt-4">
                 <button id="calculateBtn" 
@@ -282,6 +294,7 @@
             const shippingRateSelect = document.getElementById('shippingRateSelect');
             const shippingRateManual = document.getElementById('shippingRateManual');
             const calculationNotes = document.getElementById('calculationNotes');
+            const weightInput = document.getElementById('weight'); // Get the weight input element
             
             // Initially hide results using JS for animation control
             results.style.opacity = '0'; 
@@ -298,6 +311,38 @@
                 }
             });
 
+            // Automatically update shipping rate based on weight
+            weightInput.addEventListener('input', function() {
+                const weightKg = parseFloat(this.value) || 0;
+                const weightGrams = weightKg * 1000;
+                let selectedRate = '';
+
+                if (weightGrams <= 0) {
+                    selectedRate = '240'; // Default or keep current? Let's default to highest cost for safety.
+                } else if (weightGrams <= 300) {
+                    selectedRate = '240';
+                } else if (weightGrams <= 600) {
+                    selectedRate = '220';
+                } else if (weightGrams <= 900) {
+                    selectedRate = '200';
+                } else { // Over 900g
+                    selectedRate = '190';
+                }
+
+                // Check if the calculated rate exists as an option (excluding 'other')
+                const rateExists = Array.from(shippingRateSelect.options).some(option => option.value === selectedRate && option.value !== 'other');
+
+                if (rateExists) {
+                    shippingRateSelect.value = selectedRate;
+                    // Ensure manual input is hidden if we auto-select a rate
+                    if (!shippingRateManual.classList.contains('hidden')) {
+                         shippingRateManual.classList.add('hidden');
+                         shippingRateManual.value = '';
+                    }
+                } 
+                // Optional: else, maybe select 'other'? For now, it just won't change the dropdown if the rate isn't found.
+            });
+
             calculateBtn.addEventListener('click', function() {
                 // Add slight delay before showing results for better feel
                 calculateBtn.disabled = true; // Prevent double clicks
@@ -311,7 +356,8 @@
                 const weight = parseFloat(document.getElementById('weight').value) || 0;
                 const profitAmountTWD_input = parseFloat(document.getElementById('profit').value) || 0; // Changed variable name
                 const applyShopeeFee = document.getElementById('shopeeFeeToggle').checked;
-                const applyAgentFee = document.getElementById('agentFeeToggle').checked; // Read new toggle state
+                const applyAgentFee = document.getElementById('agentFeeToggle').checked; 
+                const applyInvoiceTax = document.getElementById('invoiceTaxToggle').checked; // Read invoice tax toggle state
 
                 // Get shipping rate per kg
                 let shippingRatePerKg = 0;
@@ -333,8 +379,8 @@
                 // 計算基礎成本 (商品+國際運費 + [可選]代購費)
                 const baseCostTWD = jpyPriceTWD + shippingFeeTWD + (applyAgentFee ? agentFeeTWD : 0);
 
-                // 定義稅率和平台費率
-                const taxRate = 0.05; // 5%
+                // 定義稅率和平台費率 (Conditional Tax Rate)
+                const taxRate = applyInvoiceTax ? 0.05 : 0; // 5% or 0%
                 const platformFeeRate = applyShopeeFee ? 0.10 : 0; // 10% or 0%
 
                 // 計算建議售價 P = (基礎成本 + 預期利潤) / (1 - 稅率 - 平台費率)
@@ -365,18 +411,23 @@
 
                 // 更新結果顯示
                 document.getElementById('originalPrice').textContent = `¥${jpyPrice.toLocaleString()}`;
-                document.getElementById('agentFee').textContent = applyAgentFee ? `¥${agentFeeJPY.toLocaleString(undefined, {maximumFractionDigits: 0})}` : '不適用'; // Update agent fee display
+                document.getElementById('agentFee').textContent = applyAgentFee ? `¥${agentFeeJPY.toLocaleString(undefined, {maximumFractionDigits: 0})}` : '不適用'; 
                 document.getElementById('shippingFee').textContent = `NT$${shippingFeeTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-                document.getElementById('productCost').textContent = `NT$${baseCostTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`; // Base cost now correctly reflects optional agent fee
-                document.getElementById('tax').textContent = `NT$${taxTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+                document.getElementById('productCost').textContent = `NT$${baseCostTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`; 
+                document.getElementById('tax').textContent = applyInvoiceTax ? `NT$${taxTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}` : '不適用'; // Update tax display
                 document.getElementById('platformFee').textContent = applyShopeeFee ? `NT$${platformFeeTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}` : '不適用';
                 document.getElementById('totalCost').textContent = `NT$${totalCostTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-                document.getElementById('profitAmount').textContent = `NT$${profitAmountTWD_input.toLocaleString(undefined, {maximumFractionDigits: 0})}`; // Use input profit amount
+                document.getElementById('profitAmount').textContent = `NT$${profitAmountTWD_input.toLocaleString(undefined, {maximumFractionDigits: 0})}`; 
                 document.getElementById('profitPercentageDisplay').textContent = `${calculatedProfitPercentage.toFixed(1)}%`; // Display calculated percentage
                 document.getElementById('suggestedPrice').textContent = `NT$${suggestedPriceTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
 
                 // Update calculation notes
-                calculationNotes.innerHTML = `<i class="fas fa-info-circle mr-1 text-blue-400"></i> 計算說明: 國際運費 NT$${shippingRatePerKg}/kg | 發票稅 5% | 代購費 (8%) 與 蝦皮手續費 (10%) 可選`;
+                let notesText = `<i class="fas fa-info-circle mr-1 text-blue-400"></i> 計算說明: 國際運費 NT$${shippingRatePerKg}/kg`;
+                notesText += applyInvoiceTax ? ' | 發票稅 (5%)' : '';
+                notesText += applyAgentFee ? ' | 代購費 (8%)' : '';
+                notesText += applyShopeeFee ? ' | 蝦皮手續費 (10%)' : '';
+                notesText += ' 可選';
+                calculationNotes.innerHTML = notesText;
                 
                     // 顯示結果 (use style.display and add 'visible' class)
                     results.style.display = 'block'; // Make it take space
