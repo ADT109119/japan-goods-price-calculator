@@ -154,9 +154,9 @@
             
             <div>
                 <label for="weight" class="block text-sm font-medium text-gray-700 mb-1">
-                    <i class="fas fa-weight-hanging mr-1 text-blue-500"></i>重量 (kg)
+                    <i class="fas fa-weight-hanging mr-1 text-blue-500"></i>重量 (g)
                 </label>
-                <input type="number" id="weight" step="0.1" placeholder="例: 1.5"
+                <input type="number" id="weight" step="1" placeholder="例: 1500"
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
@@ -313,8 +313,8 @@
 
             // Automatically update shipping rate based on weight
             weightInput.addEventListener('input', function() {
-                const weightKg = parseFloat(this.value) || 0;
-                const weightGrams = weightKg * 1000;
+                const weightGrams = parseFloat(this.value) || 0; // Input is now directly in grams
+                // const weightGrams = weightKg * 1000; // No longer need this conversion here
                 let selectedRate = '';
 
                 if (weightGrams <= 0) {
@@ -350,10 +350,11 @@
 
                 // Simulate calculation time (optional, remove if calculation is instant)
                 setTimeout(() => {
-                    // 獲取輸入值
+                // 獲取輸入值
                 const jpyPrice = parseFloat(document.getElementById('jpyPrice').value) || 0;
                 const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0.22;
-                const weight = parseFloat(document.getElementById('weight').value) || 0;
+                const weightGrams = parseFloat(document.getElementById('weight').value) || 0; // Read weight in grams
+                const weightKg = weightGrams / 1000; // Convert grams to kg for shipping calculation
                 const profitAmountTWD_input = parseFloat(document.getElementById('profit').value) || 0; // Changed variable name
                 const applyShopeeFee = document.getElementById('shopeeFeeToggle').checked;
                 const applyAgentFee = document.getElementById('agentFeeToggle').checked; 
@@ -370,7 +371,7 @@
                 // 計算各項費用
                 const agentFeeRate = applyAgentFee ? 0.08 : 0; // 代購費 8% or 0%
                 const agentFeeJPY = jpyPrice * agentFeeRate; 
-                const shippingFeeTWD = weight * shippingRatePerKg; // Use selected/manual rate
+                const shippingFeeTWD = weightKg * shippingRatePerKg; // Use weight in KG for shipping calculation
                 
                 // 轉換為台幣
                 const jpyPriceTWD = jpyPrice * exchangeRate;
