@@ -11,11 +11,18 @@
         
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f8fafc;
+            /* background-color: #f8fafc; */
+            background: linear-gradient(135deg, #f5f7fa 0%, #e2e8f0 100%); /* Subtle gradient */
         }
         
         .calculator-container {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            /* box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); */
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1), 0 5px 15px -5px rgba(0, 0, 0, 0.05); /* Softer shadow */
+            transition: box-shadow 0.3s ease; /* Add transition to shadow */
+        }
+        
+        .calculator-container:hover {
+             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 8px 20px -8px rgba(0, 0, 0, 0.08); /* Slightly lift on hover */
         }
         
         .result-item {
@@ -28,7 +35,15 @@
         
         input:focus {
             outline: none;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+            /* box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); */
+            border-color: #3b82f6; /* Use border color for focus */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Softer ring */
+            transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Smooth transition */
+        }
+        
+        /* Input field styling */
+        input[type="number"] {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         
         .toggle-switch {
@@ -68,6 +83,47 @@
         input:checked + .toggle-switch .toggle-switch-slider:before {
             transform: translateX(24px);
         }
+
+        /* Button Enhancement */
+        #calculateBtn {
+            background: linear-gradient(to right, #3b82f6, #2563eb); /* Gradient background */
+            transition: all 0.3s ease; /* Smoother transition */
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        #calculateBtn:hover {
+            background: linear-gradient(to right, #2563eb, #1d4ed8); /* Darker gradient on hover */
+            transform: translateY(-2px); /* Slight lift on hover */
+            box-shadow: 0 7px 14px -3px rgba(59, 130, 246, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+        }
+        
+        #calculateBtn:active {
+             transform: translateY(0px); /* Press down effect */
+             box-shadow: 0 2px 4px -1px rgba(59, 130, 246, 0.2), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Results Animation */
+        #results {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Hide results initially without 'hidden' class to allow animation */
+        #results:not(.visible) {
+             opacity: 0;
+             /* We will toggle a 'visible' class instead of 'hidden' */
+        }
+        
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -144,7 +200,8 @@
             </div>
         </div>
         
-        <div id="results" class="mt-8 space-y-3 hidden">
+        <!-- Removed 'hidden' class, will control visibility via JS and CSS -->
+        <div id="results" class="mt-8 space-y-3"> 
             <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-2 flex items-center">
                 <i class="fas fa-receipt mr-2 text-blue-500"></i>成本分析
             </h2>
@@ -206,10 +263,20 @@
             const calculateBtn = document.getElementById('calculateBtn');
             const results = document.getElementById('results');
             
+            // Initially hide results using JS for animation control
+            results.style.opacity = '0'; 
+            results.style.display = 'none'; // Keep it hidden initially
+
             calculateBtn.addEventListener('click', function() {
-                // 獲取輸入值
+                // Add slight delay before showing results for better feel
+                calculateBtn.disabled = true; // Prevent double clicks
+                calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>計算中...';
+
+                // Simulate calculation time (optional, remove if calculation is instant)
+                setTimeout(() => {
+                    // 獲取輸入值
                 const jpyPrice = parseFloat(document.getElementById('jpyPrice').value) || 0;
-                const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0;
+                const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0.22;
                 const weight = parseFloat(document.getElementById('weight').value) || 0;
                 const profitAmountTWD_input = parseFloat(document.getElementById('profit').value) || 0; // Changed variable name
                 const applyShopeeFee = document.getElementById('shopeeFeeToggle').checked;
@@ -269,11 +336,21 @@
                 document.getElementById('profitPercentageDisplay').textContent = `${calculatedProfitPercentage.toFixed(1)}%`; // Display calculated percentage
                 document.getElementById('suggestedPrice').textContent = `NT$${suggestedPriceTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
                 
-                // 顯示結果
-                results.classList.remove('hidden');
-                
-                // 滾動到結果區域
-                results.scrollIntoView({ behavior: 'smooth' });
+                    // 顯示結果 (use style.display and add 'visible' class)
+                    results.style.display = 'block'; // Make it take space
+                    // Force reflow before adding class for transition
+                    void results.offsetWidth; 
+                    results.classList.add('visible'); // Add class to trigger animation
+                    results.style.opacity = '1'; // Ensure opacity is set for animation
+                    
+                    // 滾動到結果區域
+                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                    // Re-enable button and restore text
+                    calculateBtn.disabled = false;
+                    calculateBtn.innerHTML = '<i class="fas fa-calculator mr-2"></i>計算成本與售價';
+
+                }, 0); // 可以設 delay 看個動畫
             });
         });
     </script>
