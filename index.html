@@ -9,467 +9,409 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
         
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            /* background-color: #f8fafc; */
-            background: linear-gradient(135deg, #f5f7fa 0%, #e2e8f0 100%); /* Subtle gradient */
-        }
+        body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e2e8f0 100%); }
+        .calculator-container { box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1), 0 5px 15px -5px rgba(0, 0, 0, 0.05); transition: box-shadow 0.3s ease; }
+        .calculator-container:hover { box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 8px 20px -8px rgba(0, 0, 0, 0.08); }
+        .result-item { transition: all 0.3s ease; }
+        .result-item:hover { transform: translateY(-2px); }
+        input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
         
-        .calculator-container {
-            /* box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); */
-            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1), 0 5px 15px -5px rgba(0, 0, 0, 0.05); /* Softer shadow */
-            transition: box-shadow 0.3s ease; /* Add transition to shadow */
-        }
-        
-        .calculator-container:hover {
-             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 8px 20px -8px rgba(0, 0, 0, 0.08); /* Slightly lift on hover */
-        }
-        
-        .result-item {
-            transition: all 0.3s ease;
-        }
-        
-        .result-item:hover {
-            transform: translateY(-2px);
-        }
-        
-        input:focus {
-            outline: none;
-            /* box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); */
-            border-color: #3b82f6; /* Use border color for focus */
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Softer ring */
-            transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Smooth transition */
-        }
-        
-        /* Input field styling */
-        input[type="number"] {
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .toggle-switch {
-            width: 50px;
-            height: 26px;
-        }
-        
-        .toggle-switch-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #e2e8f0;
-            transition: background-color 0.2s ease; /* Added transition for background */
-            border-radius: 34px;
-        }
-        
-        .toggle-switch-slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: transform 0.2s ease; /* Added transition for transform */
-            border-radius: 50%;
-        }
-        
-        /* Corrected selectors: Target slider inside the div sibling */
-        input:checked + .toggle-switch .toggle-switch-slider {
-            background-color: #3b82f6; 
-        }
-        
-        input:checked + .toggle-switch .toggle-switch-slider:before {
-            transform: translateX(24px);
-        }
+        /* Toggle Switch Styles */
+        .toggle-switch { width: 50px; height: 26px; }
+        .toggle-switch-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: background-color 0.2s ease; border-radius: 34px; }
+        .toggle-switch-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: transform 0.2s ease; border-radius: 50%; }
+        input:checked + .toggle-switch .toggle-switch-slider { background-color: #3b82f6; }
+        input:checked + .toggle-switch .toggle-switch-slider:before { transform: translateX(24px); }
 
-        /* Button Enhancement */
-        #calculateBtn {
-            background: linear-gradient(to right, #3b82f6, #2563eb); /* Gradient background */
-            transition: all 0.3s ease; /* Smoother transition */
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
+        /* Button Styles */
+        #calculateBtn { background: linear-gradient(to right, #3b82f6, #2563eb); transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        #calculateBtn:hover { background: linear-gradient(to right, #2563eb, #1d4ed8); transform: translateY(-2px); box-shadow: 0 7px 14px -3px rgba(59, 130, 246, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.08); }
+        #calculateBtn:active { transform: translateY(0px); box-shadow: 0 2px 4px -1px rgba(59, 130, 246, 0.2), 0 1px 2px -1px rgba(0, 0, 0, 0.05); }
 
-        #calculateBtn:hover {
-            background: linear-gradient(to right, #2563eb, #1d4ed8); /* Darker gradient on hover */
-            transform: translateY(-2px); /* Slight lift on hover */
-            box-shadow: 0 7px 14px -3px rgba(59, 130, 246, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
-        }
+        /* Animation for results section */
+        #results.visible { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        #calculateBtn:active {
-             transform: translateY(0px); /* Press down effect */
-             box-shadow: 0 2px 4px -1px rgba(59, 130, 246, 0.2), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Results Animation */
-        #results {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* Modal Styles */
+        .modal-overlay { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
+        .modal-overlay.hidden { opacity: 0; pointer-events: none; }
+        .modal-overlay.hidden .modal-content { transform: translateY(-20px) scale(0.95); opacity: 0; }
         
-        /* Hide results initially without 'hidden' class to allow animation */
-        #results:not(.visible) {
-             opacity: 0;
-             /* We will toggle a 'visible' class instead of 'hidden' */
-        }
-        
+        /* Utility class to prevent text from shrinking in a flex container */
+        .no-shrink { flex-shrink: 0; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
-    <div class="calculator-container bg-white rounded-xl p-6 w-full max-w-md">
+    <!-- Main Calculator -->
+    <div class="calculator-container bg-white rounded-xl p-6 w-full max-w-md relative">
         <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">
             <i class="fas fa-calculator mr-2 text-blue-500"></i>日本商品成本計算器
         </h1>
-        
+        <button id="openSettingsBtn" class="absolute top-4 right-4 text-gray-400 hover:text-blue-500 transition-colors duration-200" aria-label="打開設定">
+            <i class="fas fa-cog fa-lg"></i>
+        </button>
         <div class="space-y-4">
+            <!-- Inputs -->
             <div>
-                <label for="jpyPrice" class="block text-sm font-medium text-gray-700 mb-1">
-                    <i class="fas fa-tag mr-1 text-blue-500"></i>日本商品價格 (含稅, JPY)
-                </label>
+                <label for="jpyPrice" class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-tag mr-1 text-blue-500"></i>日本商品價格</label>
                 <div class="relative">
-                    <input type="number" id="jpyPrice" placeholder="例: 5000" 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="number" id="jpyPrice" placeholder="例: 5000" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                     <span class="absolute right-3 top-2.5 text-gray-500">¥</span>
                 </div>
             </div>
-            
             <div>
-                <label for="exchangeRate" class="block text-sm font-medium text-gray-700 mb-1">
-                    <i class="fas fa-exchange-alt mr-1 text-blue-500"></i>匯率 (1JPY = ? TWD)
-                </label>
-                <input type="number" id="exchangeRate" step="0.0001" placeholder="例: 0.22" 
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <label for="exchangeRate" class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-exchange-alt mr-1 text-blue-500"></i>匯率 (1JPY = ? TWD)</label>
+                <input type="number" id="exchangeRate" step="0.0001" placeholder="例: 0.22" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
             </div>
-            
             <div>
-                <label for="weight" class="block text-sm font-medium text-gray-700 mb-1">
-                    <i class="fas fa-weight-hanging mr-1 text-blue-500"></i>重量 (g)
-                </label>
-                <input type="number" id="weight" step="1" placeholder="例: 1500"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <label for="weight" class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-weight-hanging mr-1 text-blue-500"></i>重量 (g)</label>
+                <input type="number" id="weight" step="1" placeholder="例: 1500" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
             </div>
 
-            <div>
-                <label for="shippingRateSelect" class="block text-sm font-medium text-gray-700 mb-1">
-                    <i class="fas fa-truck-loading mr-1 text-blue-500"></i>國際運費 (NT$/kg)
+            <!-- Shipping Section -->
+            <div class="flex items-center justify-between pt-2">
+                 <label for="autoShippingToggle" class="text-sm font-medium text-gray-700"><i class="fas fa-magic mr-1 text-blue-500"></i>自動帶入運費</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="autoShippingToggle" class="sr-only">
+                    <div class="toggle-switch"><span class="toggle-switch-slider"></span></div>
                 </label>
+            </div>
+            <div>
+                <label for="shippingRateSelect" class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-truck-loading mr-1 text-blue-500"></i>國際運費 (NT$/kg)</label>
                 <div class="flex space-x-2">
-                    <select id="shippingRateSelect" class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="190">190</option>
-                        <option value="200">200</option>
-                        <option value="220">220</option>
-                        <option value="240" selected>240</option>
-                        <option value="other">手動輸入</option>
-                    </select>
-                    <input type="number" id="shippingRateManual" placeholder="手動輸入"
-                           class="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hidden">
+                    <select id="shippingRateSelect" class="flex-grow px-4 py-2 border border-gray-300 rounded-lg"></select>
+                    <input type="number" id="shippingRateManual" placeholder="手動輸入" class="w-1/3 px-4 py-2 border border-gray-300 rounded-lg hidden">
                 </div>
             </div>
             
+            <!-- Profit -->
             <div>
-                <label for="profit" class="block text-sm font-medium text-gray-700 mb-1">
-                    <i class="fas fa-money-bill-wave mr-1 text-blue-500"></i>預期利潤 (百分比 或 TWD)
-                </label>
+                <label for="profit" class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-money-bill-wave mr-1 text-blue-500"></i>預期利潤</label>
                 <div class="flex space-x-2">
-                    <input type="number" id="profit" placeholder="例: 50" 
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <select id="profitType" class="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="number" id="profit" placeholder="例: 50" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                    <select id="profitType" class="w-1/3 px-4 py-2 border border-gray-300 rounded-lg">
                         <option value="percentage">%</option>
                         <option value="twd">NTD</option>
                     </select>
                 </div>
             </div>
             
-            <div class="flex items-center justify-between pt-2">
-                <label for="shopeeFeeToggle" class="text-sm font-medium text-gray-700">
-                    <i class="fas fa-store mr-1 text-blue-500"></i>套用蝦皮手續費 (10%)
-                </label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="shopeeFeeToggle" class="sr-only" checked>
-                    <div class="toggle-switch">
-                        <span class="toggle-switch-slider"></span>
-                    </div>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-between pt-2">
-                <label for="agentFeeToggle" class="text-sm font-medium text-gray-700">
-                    <i class="fas fa-user-tie mr-1 text-blue-500"></i>套用代購費 (8%)
-                </label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="agentFeeToggle" class="sr-only" checked>
-                    <div class="toggle-switch">
-                        <span class="toggle-switch-slider"></span>
-                    </div>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-between pt-2">
-                <label for="invoiceTaxToggle" class="text-sm font-medium text-gray-700">
-                    <i class="fas fa-receipt mr-1 text-blue-500"></i>套用發票稅 (5%)
-                </label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="invoiceTaxToggle" class="sr-only" checked>
-                    <div class="toggle-switch">
-                        <span class="toggle-switch-slider"></span>
-                    </div>
-                </label>
-            </div>
+            <!-- Dynamic Fees Section -->
+            <div id="dynamicFeesContainer" class="space-y-3 pt-2"></div>
             
             <div class="pt-4">
-                <button id="calculateBtn" 
-                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                <button id="calculateBtn" class="w-full text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center">
                     <i class="fas fa-calculator mr-2"></i>計算成本與售價
                 </button>
             </div>
         </div>
         
-        <!-- Removed 'hidden' class, will control visibility via JS and CSS -->
-        <div id="results" class="mt-8 space-y-3"> 
-            <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-2 flex items-center">
-                <i class="fas fa-receipt mr-2 text-blue-500"></i>成本分析
-            </h2>
-            
-            <div class="result-item bg-gray-50 p-4 rounded-lg">
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-600">日本商品價格</span>
-                    <span id="originalPrice" class="text-sm font-medium">¥0</span>
-                </div>
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-600">代購費 (8%)</span>
-                    <span id="agentFee" class="text-sm font-medium">¥0</span>
-                </div>
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-600">國際運費</span>
-                    <span id="shippingFee" class="text-sm font-medium">NT$0</span>
-                </div>
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-600">商品成本 (台幣)</span>
-                    <span id="productCost" class="text-sm font-medium">NT$0</span>
-                </div>
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-600">發票稅 (5%)</span>
-                    <span id="tax" class="text-sm font-medium">NT$0</span>
-                </div>
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-600">蝦皮手續費 (10%)</span>
-                    <span id="platformFee" class="text-sm font-medium">NT$0</span>
-                </div>
-                <div class="flex justify-between pt-2 mt-2 border-t border-gray-200">
-                    <span class="text-base font-semibold text-gray-800">總成本</span>
-                    <span id="totalCost" class="text-base font-semibold text-blue-600">NT$0</span>
-                </div>
+        <!-- Results Section (Initially hidden) -->
+        <div id="results" class="mt-8 space-y-3 hidden"> 
+            <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-2 flex items-center"><i class="fas fa-receipt mr-2 text-blue-500"></i>成本分析</h2>
+            <div id="resultsBreakdown" class="result-item bg-gray-50 p-4 rounded-lg"></div>
+            <div id="profitResults" class="result-item bg-blue-50 p-4 rounded-lg mt-4"></div>
+            <div id="calculationNotes" class="text-xs text-gray-500 mt-4 italic"></div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-content bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">設定</h2>
+                <button id="closeSettingsBtn" class="text-gray-500 hover:text-gray-800" aria-label="關閉設定"><i class="fas fa-times fa-lg"></i></button>
             </div>
-            
-            <div class="result-item bg-blue-50 p-4 rounded-lg mt-4">
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-800">預期利潤 (TWD)</span>
-                    <span id="profitAmount" class="text-sm font-medium text-blue-600">NT$0</span>
-                </div>
-                 <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-800">利潤率</span>
-                    <span id="profitPercentageDisplay" class="text-sm font-medium text-blue-600">0%</span>
-                </div>
-                <div class="flex justify-between pt-2 mt-2 border-t border-blue-100">
-                    <span class="text-lg font-bold text-gray-800">建議售價</span>
-                    <span id="suggestedPrice" class="text-lg font-bold text-blue-600">NT$0</span>
-                </div>
+
+            <!-- Shipping Settings -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3 border-b pb-2">運費級距設定</h3>
+                <div id="shippingRulesContainer" class="space-y-3"></div>
+                <button id="addShippingRuleBtn" class="mt-3 text-sm text-blue-600 hover:text-blue-800 font-medium"><i class="fas fa-plus-circle mr-1"></i>新增運費級距</button>
             </div>
-            
-            <div id="calculationNotes" class="text-xs text-gray-500 mt-4 italic">
-                <i class="fas fa-info-circle mr-1 text-blue-400"></i> 計算說明: 國際運費 NT$240/kg | 發票稅 5% | 代購費 (8%) 與 蝦皮手續費 (10%) 可選
+
+            <!-- Other Fees Settings -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3 border-b pb-2">其他費用設定</h3>
+                <div id="otherFeesContainer" class="space-y-4"></div>
+                <button id="addFeeCategoryBtn" class="mt-4 text-sm text-blue-600 hover:text-blue-800 font-medium"><i class="fas fa-plus-circle mr-1"></i>新增費用項目</button>
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-8">
+                <button id="saveSettingsBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">儲存設定</button>
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const calculateBtn = document.getElementById('calculateBtn');
-            const results = document.getElementById('results');
-            const shippingRateSelect = document.getElementById('shippingRateSelect');
-            const shippingRateManual = document.getElementById('shippingRateManual');
-            const calculationNotes = document.getElementById('calculationNotes');
-            const weightInput = document.getElementById('weight'); // Get the weight input element
+    document.addEventListener('DOMContentLoaded', function() {
+        const getEl = id => document.getElementById(id);
+        const calculatorElements = {
+            calculateBtn: getEl('calculateBtn'), results: getEl('results'),
+            shippingRateSelect: getEl('shippingRateSelect'), shippingRateManual: getEl('shippingRateManual'),
+            weightInput: getEl('weight'), autoShippingToggle: getEl('autoShippingToggle'),
+            dynamicFeesContainer: getEl('dynamicFeesContainer'), resultsBreakdown: getEl('resultsBreakdown'),
+            profitResults: getEl('profitResults'), calculationNotes: getEl('calculationNotes'),
+            jpyPrice: getEl('jpyPrice'), exchangeRate: getEl('exchangeRate'),
+            profit: getEl('profit'), profitType: getEl('profitType'),
+        };
+        const modalElements = {
+            modal: getEl('settingsModal'), openBtn: getEl('openSettingsBtn'),
+            closeBtn: getEl('closeSettingsBtn'), saveBtn: getEl('saveSettingsBtn'),
+            shippingRulesContainer: getEl('shippingRulesContainer'), addShippingRuleBtn: getEl('addShippingRuleBtn'),
+            otherFeesContainer: getEl('otherFeesContainer'), addFeeCategoryBtn: getEl('addFeeCategoryBtn'),
+        };
+
+        const SETTINGS_KEY = 'costCalculatorSettings_v3'; // Version bump for new data structure
+        const AUTO_SHIPPING_KEY = 'costCalculatorAutoShipping';
+
+        const DEFAULT_SETTINGS = {
+            shippingRules: [
+                { max_g: 300, price: 240 }, { max_g: 600, price: 220 },
+                { max_g: 900, price: 200 }, { max_g: 99999, price: 190 },
+            ],
+            fees: [
+                { id: 'agent', name: '代購費', enabled: true, icon: 'fa-user-tie', rate: 8, currency: 'JPY' },
+                { id: 'shopee', name: '蝦皮手續費', enabled: true, icon: 'fa-store', rate: 10, currency: 'TWD' },
+                { id: 'invoice', name: '發票稅', enabled: true, icon: 'fa-receipt', rate: 5, currency: 'TWD' },
+            ]
+        };
+        let currentSettings = {};
+
+        const loadSettings = () => {
+            const savedSettings = localStorage.getItem(SETTINGS_KEY);
+            currentSettings = savedSettings ? JSON.parse(savedSettings) : JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
             
-            // Initially hide results using JS for animation control
-            results.style.opacity = '0'; 
-            results.style.display = 'none'; // Keep it hidden initially
+            if (!currentSettings.fees || typeof currentSettings.fees[0].currency === 'undefined') {
+                currentSettings.fees = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.fees));
+            }
 
-            // Show/hide manual input based on dropdown selection
-            shippingRateSelect.addEventListener('change', function() {
-                if (this.value === 'other') {
-                    shippingRateManual.classList.remove('hidden');
-                    shippingRateManual.focus();
+            currentSettings.shippingRules.sort((a, b) => a.max_g - b.max_g);
+            calculatorElements.autoShippingToggle.checked = localStorage.getItem(AUTO_SHIPPING_KEY) !== 'false';
+            populateUIFromSettings();
+        };
+
+        const saveSettings = () => {
+            currentSettings.shippingRules = Array.from(modalElements.shippingRulesContainer.querySelectorAll('.shipping-rule-row')).map(row => ({
+                max_g: parseInt(row.querySelector('input[name="max_g"]').value, 10) || 0,
+                price: parseFloat(row.querySelector('input[name="price"]').value) || 0,
+            })).filter(r => r.max_g > 0);
+
+            currentSettings.fees = Array.from(modalElements.otherFeesContainer.querySelectorAll('.fee-category-block')).map(block => ({
+                id: block.dataset.id,
+                name: block.querySelector('input[name="fee_name"]').value,
+                enabled: block.querySelector('input[type="checkbox"]').checked,
+                icon: block.dataset.icon,
+                rate: parseFloat(block.querySelector('input[name="rate"]').value) || 0,
+                currency: block.querySelector('select[name="currency"]').value,
+            }));
+
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
+            alert('設定已儲存！');
+            loadSettings();
+            closeModal();
+        };
+
+        const populateUIFromSettings = () => {
+            calculatorElements.shippingRateSelect.innerHTML = '';
+            currentSettings.shippingRules.forEach(rule => {
+                calculatorElements.shippingRateSelect.add(new Option(`${rule.price} (NT$/kg)`, rule.price));
+            });
+            calculatorElements.shippingRateSelect.add(new Option('手動輸入', 'other'));
+
+            calculatorElements.dynamicFeesContainer.innerHTML = '';
+            currentSettings.fees.forEach(fee => {
+                const feeHtml = `
+                    <div class="flex items-center justify-between">
+                        <label for="${fee.id}Toggle" class="text-sm font-medium text-gray-700">
+                            <i class="fas ${fee.icon || 'fa-dollar-sign'} mr-1 text-blue-500"></i>套用${fee.name} (${fee.rate}%)
+                        </label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="${fee.id}Toggle" data-fee-id="${fee.id}" class="sr-only fee-toggle" ${fee.enabled ? 'checked' : ''}>
+                            <div class="toggle-switch"><span class="toggle-switch-slider"></span></div>
+                        </label>
+                    </div>`;
+                calculatorElements.dynamicFeesContainer.insertAdjacentHTML('beforeend', feeHtml);
+            });
+        };
+
+        const renderSettingsModal = () => {
+            modalElements.shippingRulesContainer.innerHTML = '';
+            currentSettings.shippingRules.forEach(rule => addShippingRuleRow(rule.max_g, rule.price));
+            modalElements.otherFeesContainer.innerHTML = '';
+            currentSettings.fees.forEach(fee => addFeeCategoryBlock(fee));
+        };
+        
+        const addShippingRuleRow = (max_g = '', price = '') => {
+            const row = document.createElement('div');
+            row.className = 'shipping-rule-row grid grid-cols-[auto_1fr_auto_1fr_auto] gap-x-3 items-center';
+            row.innerHTML = `<span class="text-gray-600 no-shrink">重量 &le;</span><input type="number" name="max_g" value="${max_g}" placeholder="克" class="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm"><span class="text-gray-600 no-shrink">g, 運費</span><input type="number" name="price" value="${price}" placeholder="NT$/kg" class="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm"><button class="delete-btn text-red-500 hover:text-red-700 ml-2" aria-label="刪除此規則"><i class="fas fa-trash-alt"></i></button>`;
+            modalElements.shippingRulesContainer.appendChild(row);
+        };
+
+        const addFeeCategoryBlock = (fee = { id: `custom_${Date.now()}`, name: '', enabled: true, icon: 'fa-dollar-sign', rate: 0, currency: 'TWD' }) => {
+            const block = document.createElement('div');
+            block.className = 'fee-category-block border p-3 rounded-lg space-y-3 bg-gray-50';
+            block.dataset.id = fee.id;
+            block.dataset.icon = fee.icon;
+            block.innerHTML = `
+                <div class="flex justify-between items-center gap-3">
+                    <input type="text" name="fee_name" value="${fee.name}" placeholder="費用名稱" class="flex-grow px-3 py-1.5 border border-gray-300 rounded-md font-medium">
+                    <div class="flex items-center gap-4">
+                        <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only" ${fee.enabled ? 'checked' : ''}><div class="toggle-switch"><span class="toggle-switch-slider"></span></div></label>
+                        <button class="delete-btn text-red-500 hover:text-red-700" aria-label="刪除此費用項目"><i class="fas fa-times-circle fa-lg"></i></button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="relative"><input type="number" step="0.1" name="rate" value="${fee.rate}" placeholder="費率" class="w-full px-3 py-1.5 border border-gray-300 rounded-md"><span class="absolute right-3 top-2 text-gray-500">%</span></div>
+                    <select name="currency" class="w-full px-3 py-1.5 border border-gray-300 rounded-md bg-white">
+                        <option value="TWD" ${fee.currency === 'TWD' ? 'selected' : ''}>台幣 (TWD) - 基於售價</option>
+                        <option value="JPY" ${fee.currency === 'JPY' ? 'selected' : ''}>日幣 (JPY) - 基於商品價</option>
+                    </select>
+                </div>`;
+            modalElements.otherFeesContainer.appendChild(block);
+        };
+        
+        const openModal = () => { renderSettingsModal(); modalElements.modal.classList.remove('hidden'); };
+        const closeModal = () => modalElements.modal.classList.add('hidden');
+
+        const calculateCosts = () => {
+            calculatorElements.calculateBtn.disabled = true;
+            calculatorElements.calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>計算中...';
+
+            setTimeout(() => {
+                const jpyPrice = parseFloat(calculatorElements.jpyPrice.value) || 0;
+                const exchangeRate = parseFloat(calculatorElements.exchangeRate.value) || 0.22;
+                const weightGrams = parseFloat(calculatorElements.weightInput.value) || 0;
+                const profitInput = parseFloat(calculatorElements.profit.value) || 0;
+                const profitType = calculatorElements.profitType.value;
+
+                // --- Step 1: Calculate initial costs ---
+                const shippingRatePerKg = (calculatorElements.shippingRateSelect.value === 'other') ? (parseFloat(calculatorElements.shippingRateManual.value) || 0) : (parseFloat(calculatorElements.shippingRateSelect.value) || 0);
+                const shippingFeeTWD = (weightGrams / 1000) * shippingRatePerKg;
+                const appliedFees = [];
+
+                // --- Step 2: Calculate JPY-based fees and the subtotal "Product Cost" ---
+                let totalJpyBasedFeeAmount = 0;
+                currentSettings.fees.forEach(fee => {
+                    if (getEl(`${fee.id}Toggle`)?.checked && fee.currency === 'JPY') {
+                        const feeAmount = jpyPrice * (fee.rate / 100);
+                        totalJpyBasedFeeAmount += feeAmount;
+                        appliedFees.push({ ...fee, amount: feeAmount });
+                    }
+                });
+                const productCostTWD = ((jpyPrice + totalJpyBasedFeeAmount) * exchangeRate) + shippingFeeTWD;
+
+                // --- Step 3: Sum up rates of TWD-based fees ---
+                let totalTwdBasedFeeRate = 0;
+                currentSettings.fees.forEach(fee => {
+                    if (getEl(`${fee.id}Toggle`)?.checked && fee.currency === 'TWD') {
+                        totalTwdBasedFeeRate += fee.rate / 100;
+                        appliedFees.push({ ...fee, amount: 0 }); // Placeholder
+                    }
+                });
+
+                // --- Step 4: Calculate Suggested Price ---
+                let suggestedPriceTWD = 0, profitAmountTWD = 0;
+                const denominator = 1 - totalTwdBasedFeeRate - (profitType === 'percentage' ? (profitInput / 100) : 0);
+
+                if (denominator > 0) {
+                    const numerator = productCostTWD + (profitType === 'twd' ? profitInput : 0);
+                    suggestedPriceTWD = numerator / denominator;
+                    profitAmountTWD = (profitType === 'twd') ? profitInput : (suggestedPriceTWD * (profitInput / 100));
                 } else {
-                    shippingRateManual.classList.add('hidden');
-                    shippingRateManual.value = ''; // Clear manual input when switching back
+                    suggestedPriceTWD = Infinity;
+                    profitAmountTWD = Infinity;
                 }
+
+                // --- Step 5: Finalize costs based on suggested price ---
+                let finalTotalCost = productCostTWD;
+                appliedFees.forEach(fee => {
+                    if (fee.currency === 'TWD') {
+                        fee.amount = suggestedPriceTWD * (fee.rate / 100);
+                        finalTotalCost += fee.amount;
+                    }
+                });
+                
+                renderResults({ jpyPrice, shippingFeeTWD, productCostTWD, finalTotalCost, profitAmountTWD, suggestedPriceTWD, appliedFees });
+                
+                calculatorElements.calculateBtn.disabled = false;
+                calculatorElements.calculateBtn.innerHTML = '<i class="fas fa-calculator mr-2"></i>計算成本與售價';
+            }, 100);
+        };
+
+        const renderResults = (data) => {
+            const f = (num) => isFinite(num) ? num.toLocaleString(undefined, { maximumFractionDigits: 0 }) : 'N/A';
+            
+            let breakdownHtml = `<div class="flex justify-between mb-1"><span class="text-sm font-medium text-gray-600">日本商品價格</span><span class="text-sm font-medium">¥${f(data.jpyPrice)}</span></div>`;
+            let notesText = '';
+
+            data.appliedFees.filter(fee => fee.currency === 'JPY').forEach(fee => {
+                breakdownHtml += `<div class="flex justify-between mb-1"><span class="text-sm font-medium text-gray-600">${fee.name} (${fee.rate}%)</span><span class="text-sm font-medium">¥${f(fee.amount)}</span></div>`;
+            });
+            breakdownHtml += `<div class="flex justify-between mb-1"><span class="text-sm font-medium text-gray-600">國際運費</span><span class="text-sm font-medium">NT$${f(data.shippingFeeTWD)}</span></div>`;
+            
+            // The key "Product Cost" subtotal line
+            breakdownHtml += `<div class="flex justify-between mb-2 pt-2 border-t border-gray-200"><span class="text-sm font-medium text-gray-600">商品成本 (台幣)</span><span class="text-sm font-bold">NT$${f(data.productCostTWD)}</span></div>`;
+            
+            data.appliedFees.filter(fee => fee.currency === 'TWD').forEach(fee => {
+                breakdownHtml += `<div class="flex justify-between mb-1"><span class="text-sm font-medium text-gray-600">${fee.name} (${fee.rate}%)</span><span class="text-sm font-medium">NT$${f(fee.amount)}</span></div>`;
             });
 
-            // Automatically update shipping rate based on weight
-            weightInput.addEventListener('input', function() {
-                const weightGrams = parseFloat(this.value) || 0; // Input is now directly in grams
-                // const weightGrams = weightKg * 1000; // No longer need this conversion here
-                let selectedRate = '';
+            breakdownHtml += `<div class="flex justify-between pt-2 mt-2 border-t border-gray-200"><span class="text-base font-semibold text-gray-800">總成本</span><span class="text-base font-semibold text-blue-600">NT$${f(data.finalTotalCost)}</span></div>`;
+            calculatorElements.resultsBreakdown.innerHTML = breakdownHtml;
 
-                if (weightGrams <= 0) {
-                    selectedRate = '240'; // Default or keep current? Let's default to highest cost for safety.
-                } else if (weightGrams <= 300) {
-                    selectedRate = '240';
-                } else if (weightGrams <= 600) {
-                    selectedRate = '220';
-                } else if (weightGrams <= 900) {
-                    selectedRate = '200';
-                } else { // Over 900g
-                    selectedRate = '190';
-                }
-
-                // Check if the calculated rate exists as an option (excluding 'other')
-                const rateExists = Array.from(shippingRateSelect.options).some(option => option.value === selectedRate && option.value !== 'other');
-
-                if (rateExists) {
-                    shippingRateSelect.value = selectedRate;
-                    // Ensure manual input is hidden if we auto-select a rate
-                    if (!shippingRateManual.classList.contains('hidden')) {
-                         shippingRateManual.classList.add('hidden');
-                         shippingRateManual.value = '';
-                    }
-                } 
-                // Optional: else, maybe select 'other'? For now, it just won't change the dropdown if the rate isn't found.
-            });
-
-            calculateBtn.addEventListener('click', function() {
-                // Add slight delay before showing results for better feel
-                calculateBtn.disabled = true; // Prevent double clicks
-                calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>計算中...';
-
-                // Simulate calculation time (optional, remove if calculation is instant)
-                setTimeout(() => {
-                // 獲取輸入值
-                const jpyPrice = parseFloat(document.getElementById('jpyPrice').value) || 0;
-                const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0.22;
-                const weightGrams = parseFloat(document.getElementById('weight').value) || 0; // Read weight in grams
-                const weightKg = weightGrams / 1000; // Convert grams to kg for shipping calculation
-                const profitInput = parseFloat(document.getElementById('profit').value) || 0; // Get the raw profit input value
-                const profitType = document.getElementById('profitType').value; // Get the selected profit type ('percentage' or 'twd')
-                const applyShopeeFee = document.getElementById('shopeeFeeToggle').checked;
-                const applyAgentFee = document.getElementById('agentFeeToggle').checked;
-                const applyInvoiceTax = document.getElementById('invoiceTaxToggle').checked; // Read invoice tax toggle state
-
-                // Get shipping rate per kg
-                let shippingRatePerKg = 0;
-                if (shippingRateSelect.value === 'other') {
-                    shippingRatePerKg = parseFloat(shippingRateManual.value) || 0;
-                } else {
-                    shippingRatePerKg = parseFloat(shippingRateSelect.value) || 240; // Default to 240 if selection invalid
-                }
-                
-                // 計算各項費用
-                const agentFeeRate = applyAgentFee ? 0.08 : 0; // 代購費 8% or 0%
-                const agentFeeJPY = jpyPrice * agentFeeRate; 
-                const shippingFeeTWD = weightKg * shippingRatePerKg; // Use weight in KG for shipping calculation
-                
-                // 轉換為台幣
-                const jpyPriceTWD = jpyPrice * exchangeRate;
-                const agentFeeTWD = agentFeeJPY * exchangeRate;
-
-                // 計算基礎成本 (商品+國際運費 + [可選]代購費)
-                const baseCostTWD = jpyPriceTWD + shippingFeeTWD + (applyAgentFee ? agentFeeTWD : 0);
-
-                // 定義稅率和平台費率 (Conditional Tax Rate)
-                const taxRate = applyInvoiceTax ? 0.05 : 0; // 5% or 0%
-                const platformFeeRate = applyShopeeFee ? 0.10 : 0; // 10% or 0%
-
-                // --- Calculate Suggested Price and Profit Amount based on Type ---
-                let suggestedPriceTWD = 0;
-                let profitAmountTWD = 0;
-
-                if (profitType === 'percentage') {
-                    const profitRate = profitInput / 100; // Desired profit rate based on selling price
-                    const denominator = 1 - taxRate - platformFeeRate - profitRate;
-                    if (denominator > 0) {
-                        suggestedPriceTWD = baseCostTWD / denominator;
-                        profitAmountTWD = suggestedPriceTWD * profitRate; // Calculate actual profit amount
-                    } else {
-                        suggestedPriceTWD = Infinity; // Handle edge case (rates >= 100%)
-                        profitAmountTWD = Infinity;
-                    }
-                } else { // profitType === 'twd'
-                    profitAmountTWD = profitInput; // Fixed profit amount
-                    const denominator = 1 - taxRate - platformFeeRate;
-                     if (denominator > 0) {
-                        suggestedPriceTWD = (baseCostTWD + profitAmountTWD) / denominator;
-                    } else {
-                        suggestedPriceTWD = Infinity; // Handle edge case (rates >= 100%)
-                    }
-                }
-                // --- End Price and Profit Calculation ---
-
-
-                // 基於建議售價計算實際稅金和平台費
-                const taxTWD = suggestedPriceTWD * taxRate;
-                const platformFeeTWD = suggestedPriceTWD * platformFeeRate;
-
-                // 計算總成本 (基礎成本 + 稅 + 平台費)
-                const totalCostTWD = baseCostTWD + taxTWD + platformFeeTWD;
-
-                // 實際利潤 = 建議售價 - 總成本 (應該等於 profitAmountTWD_input, 但用此驗證)
-                // const actualProfit = suggestedPriceTWD - totalCostTWD; 
-
-                // 計算實際利潤率 (相對於建議售價)
-                let calculatedProfitPercentage = 0;
-                if (suggestedPriceTWD > 0 && suggestedPriceTWD !== Infinity) { // Avoid division by zero or Infinity
-                    calculatedProfitPercentage = (profitAmountTWD / suggestedPriceTWD) * 100;
-                }
-
-                // 更新結果顯示
-                document.getElementById('originalPrice').textContent = `¥${jpyPrice.toLocaleString()}`;
-                document.getElementById('agentFee').textContent = applyAgentFee ? `¥${agentFeeJPY.toLocaleString(undefined, {maximumFractionDigits: 0})}` : '不適用'; 
-                document.getElementById('shippingFee').textContent = `NT$${shippingFeeTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-                document.getElementById('productCost').textContent = `NT$${baseCostTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`; 
-                document.getElementById('tax').textContent = applyInvoiceTax ? `NT$${taxTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}` : '不適用'; // Update tax display
-                document.getElementById('platformFee').textContent = applyShopeeFee ? `NT$${platformFeeTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}` : '不適用';
-                document.getElementById('totalCost').textContent = `NT$${totalCostTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-                document.getElementById('profitAmount').textContent = `NT$${profitAmountTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`; // Use calculated profitAmountTWD
-                document.getElementById('profitPercentageDisplay').textContent = `${calculatedProfitPercentage.toFixed(1)}%`; // Display calculated percentage
-                document.getElementById('suggestedPrice').textContent = `NT$${suggestedPriceTWD.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-
-                // Update calculation notes
-                let notesText = `<i class="fas fa-info-circle mr-1 text-blue-400"></i> 計算說明: 國際運費 NT$${shippingRatePerKg}/kg`;
-                notesText += applyInvoiceTax ? ' | 發票稅 (5%)' : '';
-                notesText += applyAgentFee ? ' | 代購費 (8%)' : '';
-                notesText += applyShopeeFee ? ' | 蝦皮手續費 (10%)' : '';
-                notesText += ' 可選';
-                calculationNotes.innerHTML = notesText;
-                
-                    // 顯示結果 (use style.display and add 'visible' class)
-                    results.style.display = 'block'; // Make it take space
-                    // Force reflow before adding class for transition
-                    void results.offsetWidth; 
-                    results.classList.add('visible'); // Add class to trigger animation
-                    results.style.opacity = '1'; // Ensure opacity is set for animation
-                    
-                    // 滾動到結果區域
-                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                    // Re-enable button and restore text
-                    calculateBtn.disabled = false;
-                    calculateBtn.innerHTML = '<i class="fas fa-calculator mr-2"></i>計算成本與售價';
-
-                }, 0); // 可以設 delay 看個動畫
-            });
+            const profitPercentage = (isFinite(data.suggestedPriceTWD) && data.suggestedPriceTWD > 0) ? (data.profitAmountTWD / data.suggestedPriceTWD) * 100 : 0;
+            calculatorElements.profitResults.innerHTML = `
+                <div class="flex justify-between mb-1"><span class="text-sm font-medium text-gray-800">預期利潤 (TWD)</span><span class="text-sm font-medium text-blue-600">NT$${f(data.profitAmountTWD)}</span></div>
+                <div class="flex justify-between mb-1"><span class="text-sm font-medium text-gray-800">利潤率</span><span class="text-sm font-medium text-blue-600">${isFinite(profitPercentage) ? profitPercentage.toFixed(1) : 'N/A'}%</span></div>
+                <div class="flex justify-between pt-2 mt-2 border-t border-blue-100"><span class="text-lg font-bold text-gray-800">建議售價</span><span class="text-lg font-bold text-blue-600">NT$${f(data.suggestedPriceTWD)}</span></div>`;
+            
+            calculatorElements.calculationNotes.innerHTML = `<i class="fas fa-info-circle mr-1 text-blue-400"></i> 國際運費 NT$${data.shippingFeeTWD}/kg | ${data.appliedFees.map(f => `${f.name}(${f.rate}% / ${f.currency})`).join(' | ')}`;
+            
+            calculatorElements.results.classList.remove('hidden');
+            calculatorElements.results.classList.add('visible');
+            calculatorElements.results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+        
+        // --- Event Listeners Setup ---
+        modalElements.openBtn.addEventListener('click', openModal);
+        modalElements.closeBtn.addEventListener('click', closeModal);
+        modalElements.saveBtn.addEventListener('click', saveSettings);
+        calculatorElements.calculateBtn.addEventListener('click', calculateCosts);
+        
+        calculatorElements.autoShippingToggle.addEventListener('change', (e) => localStorage.setItem(AUTO_SHIPPING_KEY, e.target.checked));
+        
+        calculatorElements.weightInput.addEventListener('input', function() {
+            if (!calculatorElements.autoShippingToggle.checked) return;
+            const applicableRule = currentSettings.shippingRules.find(rule => (parseFloat(this.value) || 0) <= rule.max_g);
+            if (applicableRule) {
+                calculatorElements.shippingRateSelect.value = applicableRule.price;
+                calculatorElements.shippingRateManual.classList.add('hidden');
+                calculatorElements.shippingRateManual.value = '';
+            }
         });
+        
+        calculatorElements.shippingRateSelect.addEventListener('change', function() {
+            calculatorElements.shippingRateManual.classList.toggle('hidden', this.value !== 'other');
+            if (this.value === 'other') calculatorElements.shippingRateManual.focus();
+        });
+        
+        // Settings Modal Dynamic Listeners
+        modalElements.addShippingRuleBtn.addEventListener('click', () => addShippingRuleRow());
+        modalElements.addFeeCategoryBtn.addEventListener('click', () => addFeeCategoryBlock());
+        modalElements.modal.addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.delete-btn');
+            if (deleteBtn) {
+                const row = deleteBtn.closest('.shipping-rule-row, .fee-category-block');
+                if (row) row.remove();
+            }
+        });
+
+        // --- Initial Load ---
+        loadSettings();
+    });
     </script>
 </body>
 </html>
